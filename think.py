@@ -186,6 +186,7 @@ class Think:
                             user.friends(self.repo[rep].watchers)
                             for owns in self.owner[self.repo[rep].owner].own:
                                 user.think(owns.id, 10)
+                        """
                         for th in user._think:
                             try:
                                 ro = self.repo[th]
@@ -195,11 +196,12 @@ class Think:
                                 for fa in user.langsFav:
                                     try:
                                         if ro.lang[fa] > Think.LangValueMin:
-                                            user.think(th,Think.FavLangValue)
+                                            user.think(th,2)
                                     except:
                                         pass
                             except:
                                 print "\tLang error"
+                        """
                         out += user.done()
                         print "saving: ", out
                         save.write(out + "\n")
