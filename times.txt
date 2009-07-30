@@ -1,0 +1,19 @@
+			7-30-2009
+line 307 start timer
+stop at 2626 (line 407)
+3:39 219
+
+4788 entries
+47.88 times
+~
+~10512 sec
+~2.92 hr
+~175 min
+
+
+what time said:
+real    55m58.467s
+user    55m13.141s
+sys     0m12.795s
+
+note: system crashed because of unfound user will rerun when fixed

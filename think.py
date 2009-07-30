@@ -9,7 +9,10 @@ class Think:
         def __init__(self):
             self.watch = {}
             self.langs = {}
+            self.langsFav = []
+            self.langsSum = 0
             self._think = {}
+            self._str = None
         def add(self, n):
             self.watch[''.join(re.findall(Think.num, n))] = 1
         def think(self, name):
@@ -35,10 +38,18 @@ class Think:
                 for n in l:
                     self.think(n)
         def line(self):
+            if self._str != None:
+                return self._str
             # print the line for saveing
             data = self._think.items()
-            data.sort(lambda x,y:(x[1] - y[1]))
-            return ','.join([str(i) for i in data[:10]])
+            data.sort(lambda x,y:(y[1] - x[1]))
+            return ','.join([str(i[0]) for i in data[:10]])
+        def done(self):
+            # finished with the user object
+            self._str = self.line()
+            self._think = None
+            self.langs = None
+            return self._str
     class Owner:
         def __init__(self, name):
             self.name = name
@@ -87,6 +98,7 @@ class Think:
 
     # const
     num = re.compile("[0-9]")
+    FavLangMin = 50 # lines of code
 
     def __init__(self):
         self.user = {}
@@ -153,7 +165,11 @@ class Think:
             sum = 0
             for li in user.langs:
                 sum += user.langs[li]
-    def process3(self):
+            user.langsSun = sum
+            fav = user.langs.items()
+            fav.sort(lambda x,y:(x[1] - y[1]))
+            user.langsFav = fav[:3]
+    def process3(self): # not used
         for p in self.repo:
             pro = self.repo[p]
             self.repo[p] = None
@@ -161,4 +177,28 @@ class Think:
             print pro.name
             for w in pro.watchers:
                 w.friends(pro.watchers)
-            
+    def test(self, testName, saveName):
+        with open(testName) as test:
+            with open(saveName, 'w') as save:
+                for us in test:
+                    try:
+                        u = ''.join(re.findall(Think.num, us))
+                        out = u + ":"
+                        user = self.user[u]
+                        for rep in user.watch:
+                            user.friends(self.repo[rep].watchers)
+                        fav = user.langsFav
+                        for th in user._think:
+                            try:
+                                ro = self.repo[th]
+                                for fa in fav:
+                                    if ro.lang[fa] > Think.FavLangMin:
+                                        user.think(th)
+                            except:
+                                pass
+                        out += user.done()
+                        print "saving: ", out
+                        save.write(out + "\n")
+                    except:
+                        pass
+                    

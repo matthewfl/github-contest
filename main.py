@@ -12,10 +12,12 @@ def main ():
 	t.loadData("data/data.txt")
 	print "processing 1"
 	t.process1()
-	print "processing 3"
-	t.process3()
-	print "saving data"
-	t.save("results.txt")
+	print "processing 2"
+	t.process2()
+	# use the test file for this
+	print "processing testing/saving"
+	t.test("data/test.txt", "results.txt")
+	#t.save("results.txt")
 
 
 if __name__ == "__main__":
