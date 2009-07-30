@@ -10,6 +10,10 @@ def main ():
 	t.loadLang("data/lang.txt")
 	print "loading data"
 	t.loadData("data/data.txt")
+	print "processing 1"
+	t.process1()
+	print "processing 3"
+	t.process3()
 	print "saving data"
 	t.save("results.txt")
 
