@@ -15,7 +15,7 @@ class Think:
             self._str = None
         def add(self, n):
             self.watch[''.join(re.findall(Think.num, n))] = 1
-        def think(self, name):
+        def think(self, name, weight=1):
             try:
                 self.watch[name]
             except:
@@ -23,7 +23,7 @@ class Think:
                     self._think[name]
                 except:
                     self._think[name] = 0
-                self._think[name] += 1
+                self._think[name] += weight
         def project(self, pro):
             pro.watchers.append(self)
             for l in pro.lang:
@@ -42,7 +42,7 @@ class Think:
                 return self._str
             # print the line for saveing
             data = self._think.items()
-            data.sort(lambda x,y:(y[1] - x[1]))
+            data.sort(lambda x,y:(int(y[1]) - int(x[1])))
             return ','.join([str(i[0]) for i in data[:10]])
         def done(self):
             # finished with the user object
@@ -98,7 +98,8 @@ class Think:
 
     # const
     num = re.compile("[0-9]")
-    FavLangMin = 50 # lines of code
+    FavLangValue = 100.00 # lines of code per point
+    WatchersDiv = 50.00
 
     def __init__(self):
         self.user = {}
@@ -167,8 +168,9 @@ class Think:
                 sum += user.langs[li]
             user.langsSun = sum
             fav = user.langs.items()
-            fav.sort(lambda x,y:(x[1] - y[1]))
-            user.langsFav = fav[:3]
+            fav.sort(lambda x,y:(y[1] - x[1]))
+            for f in fav[:3]:
+                user.langsFav.append(f[0])
     def process3(self): # not used
         for p in self.repo:
             pro = self.repo[p]
@@ -187,18 +189,21 @@ class Think:
                         user = self.user[u]
                         for rep in user.watch:
                             user.friends(self.repo[rep].watchers)
-                        fav = user.langsFav
-                        for th in user._think:
+                        for fa in user.langsFav:
                             try:
-                                ro = self.repo[th]
-                                for fa in fav:
-                                    if ro.lang[fa] > Think.FavLangMin:
-                                        user.think(th)
+                                for th in user._think:
+                                    try:
+                                        ro = self.repo[th]
+                                        user._think[th] /= (float(len(ro.watchers))/Think.WatchersDiv)
+                                        wei = float(ro.lang[fa])/Think.FavLangValue
+                                        user.think(th,wei)
+                                    except:
+                                        pass
                             except:
-                                pass
+                                print "\tLang error"
                         out += user.done()
                         print "saving: ", out
                         save.write(out + "\n")
                     except:
-                        pass
+                        print "\tUser error", us
                     

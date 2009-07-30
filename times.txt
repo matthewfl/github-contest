@@ -17,3 +17,11 @@ user    55m13.141s
 sys     0m12.795s
 
 note: system crashed because of unfound user will rerun when fixed
+
+      	     	     7-30-2009 run 2
+time:
+real    37m11.184s
+user    36m44.682s
+sys     0m2.572s
+
+only 18% done, stopped for time
