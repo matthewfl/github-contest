@@ -41,10 +41,13 @@ class Think:
             if self._str != None:
                 return self._str
             # print the line for saveing
+            leng = len(self.watch)
+            if leng > 10:
+                leng = 10
             data = self._think.items()
             data.sort(lambda x,y:(int(y[1]) - int(x[1])))
-            self.Info = data[:10]
-            return ','.join([str(i[0]) for i in data[:10]])
+            self.Info = data[:leng]
+            return ','.join([str(i[0]) for i in data[:leng]])
         def done(self):
             # finished with the user object
             self._str = self.line()
