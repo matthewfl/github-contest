@@ -23,7 +23,8 @@ class User
 				end
 			end
 		end
-		return "#{@id}:#{list.sort_by{|x,y| -y}.slice(0,10).map{|x| x[1]}.join(",")}"
+		data = list.sort_by{|x,y| -y}.slice(0,10)
+		return "#{@id}:#{data.map{|x| x[0].id}.join(",")}"
 	end
 end
 
