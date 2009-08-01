@@ -1,7 +1,9 @@
 
 $userList = {}
 $repoList = {}
+$repoName = {}
 $ownerList = {}
+
 
 
 class User
@@ -11,11 +13,13 @@ class User
 		@follow = []
 	end
 	def follow (repo)
-		@follow.push repo
-		repo.add self	
+		if repo.is_a?(Repo)
+			@follow.push repo
+			repo.add self
+		end	
 	end
 	def follows
-		return @follow
+		@follow
 	end
 	def think
 		list = {}
@@ -25,13 +29,19 @@ class User
 					if !list[vote]
 						list[vote] = 0
 					end
-					list[vote] += 1
+					list[vote] += vote.value
 				end
+			end
+			rep.might.each do |vote|
+				if !list[vote]
+					list[vote] = 0
+				end
+				list[vote] += vote.value
 			end
 		end
 		@follow.each {|x| list[x] = 0}
 		data = list.sort_by{|x,y| -y}.slice(0,10)
-		"#{@id}:#{data.map{|x| x[0].id}.join(",")}"
+		"#{@id}:#{data.slice(0,@follow.length).map{|x| x[0].id}.join(",")}"
 	end
 end
 
@@ -52,8 +62,9 @@ class Owner
 end
 
 class Repo
-	attr_reader :follow, :name, :id, :path, :owner, :forked, :made
+	attr_reader :follow, :name, :id, :path, :owner, :forked, :made, :value, :might
 	def initialize (line)
+		@value = 1
 		res = line.split(":")
 		@id = res[0].to_i
 		d = res[1].split(",")
@@ -62,6 +73,7 @@ class Repo
 		@owner = $ownerList[p[0]] ||= Owner.new(p[0])
 		@owner.add self
 		@follow = [@owner]
+		@might = []
 		@name = p[1]
 		@made = d[1]
 		@forked = d[2]
@@ -69,6 +81,32 @@ class Repo
 	def add (user)
 		if user.is_a?(User)
 			@follow.push user
+		end
+	end
+	def process
+		if @follow.length > 250
+			@value = 0.5
+		end
+		@name.scan(/[A-Za-z]*/).each do |what|
+			if what
+				n = ($repoName[what] ||= [])
+				n.push self
+			end
+		end
+		if @forked
+			@forked = $repoList[@forked.to_i] ||= Repo.new(@forked.to_i)
+			@might.push @forked
+		end
+	end
+	def mights (repos)
+		@might += repos
+	end
+	def process2
+		@name.scan(/[A-Za-z]*/).each do |what|
+			if !what.empty?
+				puts what
+				@might += $repoName[what] || [] 
+			end
 		end
 	end
 end
@@ -90,6 +128,22 @@ File.open("data/data.txt") do |file|
 		user_id, repo_id = line.split(":")
 		user = $userList[user_id.to_i] ||= User.new(user_id.to_i)
 		user.follow($repoList[repo_id.to_i])
+	end
+end
+
+puts "processing repos"
+puts "1"
+$repoList.each do |name, repo|
+	repo.process
+end
+puts "2"
+#$repoList.each do |name, repo|
+#	repo.process2
+#end
+$repoName.each do |name, repos|
+	if !name.empty?
+		puts name
+		repos.each {|x| x.mights repos}
 	end
 end
 
