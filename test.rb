@@ -63,6 +63,7 @@ end
 
 class Repo
 	attr_reader :follow, :name, :id, :path, :owner, :forked, :made, :value, :might
+	attr_accessor :children
 	def initialize (line)
 		@value = 1
 		res = line.split(":")
@@ -77,6 +78,7 @@ class Repo
 		@name = p[1]
 		@made = d[1]
 		@forked = d[2]
+		@children = []
 	end
 	def add (user)
 		if user.is_a?(User)
@@ -84,7 +86,7 @@ class Repo
 		end
 	end
 	def process
-		if @follow.length > 250
+		if @follow.length > 200
 			@value = 0.5
 		end
 		@name.scan(/[A-Za-z]*/).each do |what|
@@ -96,17 +98,15 @@ class Repo
 		if @forked
 			@forked = $repoList[@forked.to_i] ||= Repo.new(@forked.to_i)
 			@might.push @forked
+			@forked.children.push self
 		end
 	end
 	def mights (repos)
 		@might += repos
 	end
-	def process2
-		@name.scan(/[A-Za-z]*/).each do |what|
-			if !what.empty?
-				puts what
-				@might += $repoName[what] || [] 
-			end
+	def process3
+		if @forked
+			@might += @forked.children
 		end
 	end
 end
@@ -133,19 +133,21 @@ end
 
 puts "processing repos"
 puts "1"
-$repoList.each do |name, repo|
+$repoList.each { |name, repo|
 	repo.process
-end
+}
+
 puts "2"
-#$repoList.each do |name, repo|
-#	repo.process2
-#end
 $repoName.each do |name, repos|
 	if !name.empty?
-		puts name
+		puts "\t#{name}"
 		repos.each {|x| x.mights repos}
 	end
 end
+puts "3"
+$repoList.each { |name, repo|
+	repo.process3
+}
 
 puts "saving data"
 
