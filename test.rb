@@ -205,9 +205,11 @@ File.open("data/test.txt") do |file|
 	File.open("results.txt", "w") do |save|
 		file.each do |line|
 			user = $userList[line.to_i]
-			out = "#{user.think}\n"
-			puts out
-			save << out
+			if user
+				out = "#{user.think}\n"
+				puts out
+				save << out
+			end
 		end	
 	end
 end
